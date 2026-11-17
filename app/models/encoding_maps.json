@@ -1,0 +1,81 @@
+{
+  "ordinal_maps": {
+    "physical_activity": {
+      "Low": 0,
+      "Moderate": 1,
+      "High": 2
+    },
+    "stress_level": {
+      "Low": 0,
+      "Moderate": 1,
+      "High": 2
+    },
+    "pesticide_exposure": {
+      "None": 0,
+      "Low": 1,
+      "Moderate": 2,
+      "High": 3
+    },
+    "air_pollution_exposure": {
+      "Low": 0,
+      "Moderate": 1,
+      "High": 2
+    },
+    "alcohol_use": {
+      "None": 0,
+      "Occasional": 1,
+      "Regular": 2,
+      "Heavy": 3
+    }
+  },
+  "binary_maps": {
+    "residence": {
+      "Urban": 0,
+      "Rural": 1
+    },
+    "occupational_chemical_exposure": {
+      "No": 0,
+      "Yes": 1
+    },
+    "smoking": {
+      "No": 0,
+      "Yes": 1
+    },
+    "irregular_menstrual_cycle": {
+      "No": 0,
+      "Yes": 1
+    },
+    "severe_menstrual_pain": {
+      "No": 0,
+      "Yes": 1
+    },
+    "family_reproductive_history": {
+      "No": 0,
+      "Yes": 1
+    },
+    "previous_reproductive_condition": {
+      "No": 0,
+      "Yes": 1
+    }
+  },
+  "provinces": [
+    "Harare",
+    "Bulawayo",
+    "Manicaland",
+    "Mashonaland Central",
+    "Mashonaland East",
+    "Mashonaland West",
+    "Masvingo",
+    "Matabeleland North",
+    "Matabeleland South",
+    "Midlands"
+  ],
+  "numeric_cols_to_scale": [
+    "age",
+    "processed_food_frequency_1_5",
+    "fruit_vegetable_frequency_1_5",
+    "legume_frequency_1_5",
+    "sleep_hours",
+    "bmi"
+  ]
+}

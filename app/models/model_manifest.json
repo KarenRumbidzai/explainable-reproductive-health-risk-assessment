@@ -1,0 +1,18 @@
+{
+  "trained_on_records": 4300,
+  "train_rows": 3440,
+  "test_rows": 860,
+  "random_seed": 42,
+  "python": "3.12.3",
+  "scikit_learn": "1.9.1",
+  "xgboost": "3.4.1",
+  "shap": "0.53.0",
+  "test_metrics_krm": {
+    "Accuracy": 0.7488,
+    "Precision (macro)": 0.7243,
+    "Recall (macro)": 0.702,
+    "F1 (macro)": 0.7118,
+    "ROC-AUC (OvR)": 0.8804,
+    "High-risk recall": 0.6822
+  }
+}

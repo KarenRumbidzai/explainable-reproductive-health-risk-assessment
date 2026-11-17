@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+{% block title %}Explore Data{% endblock %}
+{% block page_title %}Explore Data{% endblock %}
+{% block page_subtitle %}Upload any spreadsheet for a quick structural and statistical summary{% endblock %}
+
+{% block content %}
+
+<div class="card">
+  <div class="card-header">
+    <h2>Upload a Dataset</h2>
+    <span class="hint">.csv, .xlsx, .xls</span>
+  </div>
+  <form method="post" action="{{ url_for('explore') }}" enctype="multipart/form-data">
+    <div class="upload-drop">
+      <input type="file" name="data_file" accept=".csv,.xlsx,.xls" required>
+      <p class="hint" style="margin-top:10px;">Independent of the KRM model — useful for inspecting any survey export before deciding how to use it.</p>
+    </div>
+    <button type="submit" class="btn">Analyze File</button>
+  </form>
+</div>
+
+{% if error %}<div class="flash">{{ error }}</div>{% endif %}
+
+{% if summary %}
+
+<div class="tile-grid">
+  <div class="tile"><div class="tile-label">File</div><div class="tile-value" style="font-size:15px;">{{ summary.filename }}</div></div>
+  <div class="tile"><div class="tile-label">Rows</div><div class="tile-value">{{ summary.n_rows }}</div></div>
+  <div class="tile"><div class="tile-label">Columns</div><div class="tile-value">{{ summary.n_cols }}</div></div>
+  <div class="tile"><div class="tile-label">Columns With Missing Values</div><div class="tile-value {{ 'high' if summary.missing else 'low' }}">{{ summary.missing|length }}</div></div>
+</div>
+
+<div class="card">
+  <div class="card-header"><h2>Preview (first 10 rows)</h2></div>
+  <div class="table-scroll">{{ summary.preview_html | safe }}</div>
+</div>
+
+<div class="grid-2">
+  <div class="card">
+    <div class="card-header"><h2>Numeric Summary</h2></div>
+    {% if summary.describe_html %}
+    <div class="table-scroll">{{ summary.describe_html | safe }}</div>
+    {% else %}
+    <p class="hint">No numeric columns detected.</p>
+    {% endif %}
+  </div>
+
+  <div class="card">
+    <div class="card-header"><h2>{{ summary.chart_col if summary.chart_col else 'Missing Values' }}</h2></div>
+    {% if summary.chart_data %}
+    <div class="chart-wrap small"><canvas id="exploreChart"></canvas></div>
+    {% elif summary.missing %}
+    <table class="data-table">
+      <thead><tr><th>Column</th><th>Missing count</th></tr></thead>
+      <tbody>{% for col, count in summary.missing.items() %}<tr><td>{{ col }}</td><td>{{ count }}</td></tr>{% endfor %}</tbody>
+    </table>
+    {% else %}
+    <p class="hint">No missing values detected.</p>
+    {% endif %}
+  </div>
+</div>
+
+{% if summary.categorical_summaries %}
+<div class="card">
+  <div class="card-header"><h2>Categorical Value Counts</h2><span class="hint">Top 8 columns, top 8 values each</span></div>
+  <div class="grid-3">
+    {% for col, counts in summary.categorical_summaries.items() %}
+    <div>
+      <strong style="font-size:12.5px;">{{ col }}</strong>
+      <table class="data-table">{% for val, c in counts.items() %}<tr><td>{{ val }}</td><td>{{ c }}</td></tr>{% endfor %}</table>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
+{% if summary.chart_data %}
+<script>
+new Chart(document.getElementById('exploreChart'), {
+  type: 'bar',
+  data: {
+    labels: {{ summary.chart_data.labels | tojson }},
+    datasets: [{ data: {{ summary.chart_data.counts | tojson }}, backgroundColor: '#1b7a63', borderRadius: 5 }]
+  },
+  options: {
+    indexAxis: 'y',
+    maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: { x: { beginAtZero: true, ticks: { precision: 0 } } }
+  }
+});
+</script>
+{% endif %}
+
+{% endif %}
+
+{% endblock %}

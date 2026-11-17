@@ -1,0 +1,182 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+{% block page_subtitle %}Overview of the model's training data and everyone assessed so far{% endblock %}
+
+{% block content %}
+
+<div class="tile-grid">
+  <div class="tile">
+    <div class="tile-label">Training Respondents</div>
+    <div class="tile-value">{{ dataset_stats.n_respondents if dataset_stats else '—' }}</div>
+  </div>
+  <div class="tile">
+    <div class="tile-label">Members Registered</div>
+    <div class="tile-value brand">{{ member_count }}</div>
+  </div>
+  <div class="tile">
+    <div class="tile-label">High Risk (Registered)</div>
+    <div class="tile-value high">{{ risk_dist.get('High', 0) }}</div>
+  </div>
+  <div class="tile">
+    <div class="tile-label">Low Risk (Registered)</div>
+    <div class="tile-value low">{{ risk_dist.get('Low', 0) }}</div>
+  </div>
+</div>
+
+<div class="grid-2">
+  <div class="card">
+    <div class="card-header">
+      <h2>Registered Members — Risk Distribution</h2>
+      <span class="hint">{{ member_count }} total</span>
+    </div>
+    {% if member_count > 0 %}
+    <div class="chart-wrap"><canvas id="riskDonut"></canvas></div>
+    {% else %}
+    <div class="empty-state">No members registered yet.<br><a href="{{ url_for('predict') }}">Run your first prediction &rarr;</a></div>
+    {% endif %}
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <h2>Training Dataset — Risk Distribution</h2>
+      <span class="hint">{{ dataset_stats.n_respondents if dataset_stats else 0 }} respondents</span>
+    </div>
+    {% if dataset_stats %}
+    <div class="prob-bars">
+      <div class="prob-row">
+        <span class="prob-label">Low</span>
+        <div class="prob-track"><div class="prob-fill" style="width: {{ dataset_stats.low_pct }}%; background: var(--risk-low);"></div></div>
+        <span class="prob-pct">{{ dataset_stats.low_pct }}%</span>
+      </div>
+      <div class="prob-row">
+        <span class="prob-label">Moderate</span>
+        <div class="prob-track"><div class="prob-fill" style="width: {{ dataset_stats.moderate_pct }}%; background: var(--risk-moderate);"></div></div>
+        <span class="prob-pct">{{ dataset_stats.moderate_pct }}%</span>
+      </div>
+      <div class="prob-row">
+        <span class="prob-label">High</span>
+        <div class="prob-track"><div class="prob-fill" style="width: {{ dataset_stats.high_pct }}%; background: var(--risk-high);"></div></div>
+        <span class="prob-pct">{{ dataset_stats.high_pct }}%</span>
+      </div>
+    </div>
+    {% else %}
+    <p class="hint">Training dataset not found alongside this app.</p>
+    {% endif %}
+  </div>
+</div>
+
+<div class="grid-2">
+  <div class="card">
+    <div class="card-header">
+      <h2>Registrations Over Time</h2>
+      <span class="hint">by day</span>
+    </div>
+    {% if member_count > 0 %}
+    <div class="chart-wrap small"><canvas id="trendChart"></canvas></div>
+    {% else %}
+    <div class="empty-state">Nothing to trend yet.</div>
+    {% endif %}
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <h2>Most Common Top Risk Factor</h2>
+      <span class="hint">across registered members</span>
+    </div>
+    {% if top_factor_counts %}
+    <div class="chart-wrap small"><canvas id="factorChart"></canvas></div>
+    {% else %}
+    <div class="empty-state">Nothing to show yet.</div>
+    {% endif %}
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <h2>Recently Registered</h2>
+    <a class="hint" href="{{ url_for('members') }}">View all &rarr;</a>
+  </div>
+  {% if recent_members %}
+  <div class="table-scroll">
+    <table class="data-table">
+      <thead><tr><th>Name</th><th>Province</th><th>Predicted Risk</th><th>Registered</th></tr></thead>
+      <tbody>
+        {% for m in recent_members %}
+        <tr>
+          <td>{{ m.full_name }}</td>
+          <td>{{ m.province }}</td>
+          <td><span class="risk-pill {{ m.predicted_risk }}">{{ m.predicted_risk }}</span></td>
+          <td>{{ m.registered_at }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="empty-state">Nothing here yet.</div>
+  {% endif %}
+</div>
+
+<script>
+  const palette = { Low: '#1b7a63', Moderate: '#b8760e', High: '#c1443a' };
+
+  {% if member_count > 0 %}
+  new Chart(document.getElementById('riskDonut'), {
+    type: 'doughnut',
+    data: {
+      labels: ['Low', 'Moderate', 'High'],
+      datasets: [{
+        data: [{{ risk_dist.get('Low', 0) }}, {{ risk_dist.get('Moderate', 0) }}, {{ risk_dist.get('High', 0) }}],
+        backgroundColor: [palette.Low, palette.Moderate, palette.High],
+        borderWidth: 0,
+      }]
+    },
+    options: {
+      maintainAspectRatio: false,
+      cutout: '68%',
+      plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { family: 'Inter', size: 11.5 } } } }
+    }
+  });
+
+  new Chart(document.getElementById('trendChart'), {
+    type: 'line',
+    data: {
+      labels: {{ trend.labels | tojson }},
+      datasets: [{
+        data: {{ trend.counts | tojson }},
+        borderColor: '#1b7a63',
+        backgroundColor: 'rgba(27,122,99,0.08)',
+        fill: true, tension: 0.35, pointRadius: 3,
+      }]
+    },
+    options: {
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
+    }
+  });
+  {% endif %}
+
+  {% if top_factor_counts %}
+  new Chart(document.getElementById('factorChart'), {
+    type: 'bar',
+    data: {
+      labels: {{ top_factor_counts.keys() | list | tojson }},
+      datasets: [{
+        data: {{ top_factor_counts.values() | list | tojson }},
+        backgroundColor: '#c96f4a',
+        borderRadius: 5,
+      }]
+    },
+    options: {
+      indexAxis: 'y',
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: { x: { beginAtZero: true, ticks: { precision: 0 } } }
+    }
+  });
+  {% endif %}
+</script>
+
+{% endblock %}

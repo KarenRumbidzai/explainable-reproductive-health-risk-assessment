@@ -1,0 +1,249 @@
+{% extends "base.html" %}
+{% block title %}Run Prediction{% endblock %}
+{% block page_title %}Run Prediction{% endblock %}
+{% block page_subtitle %}Register a new member and get a KRM risk assessment{% endblock %}
+
+{% block content %}
+<div class="grid-2">
+
+  <div class="card">
+    <div class="card-header">
+      <h2>New Member Details</h2>
+      <span class="hint">All fields required</span>
+    </div>
+    <form method="post" action="{{ url_for('predict') }}">
+
+      <fieldset>
+        <legend>Member Info</legend>
+        <div class="field full">
+          <label for="full_name">Full Name</label>
+          <input type="text" id="full_name" name="full_name" value="{{ submitted.full_name or '' }}" required>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label for="province">Province</label>
+            <select id="province" name="province" required>
+              {% for p in options.province %}
+              <option value="{{ p }}" {{ 'selected' if submitted.province == p }}>{{ p }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="field">
+            <label for="residence">Residence</label>
+            <select id="residence" name="residence" required>
+              {% for v in options.residence %}
+              <option value="{{ v }}" {{ 'selected' if submitted.residence == v }}>{{ v }}</option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label for="age">Age</label>
+            <input type="number" id="age" name="age" min="18" max="45" value="{{ submitted.age or 28 }}" required>
+          </div>
+          <div class="field">
+            <label for="bmi">BMI</label>
+            <input type="number" step="0.1" id="bmi" name="bmi" min="12" max="55" value="{{ submitted.bmi or 23.0 }}" required>
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Dietary (1&ndash;5 scale, 1 = rarely, 5 = daily)</legend>
+        <div class="field-row">
+          <div class="field">
+            <label for="processed_food_frequency_1_5">Processed Food Frequency</label>
+            <select id="processed_food_frequency_1_5" name="processed_food_frequency_1_5" required>
+              {% for i in range(1,6) %}<option value="{{ i }}" {{ 'selected' if submitted.processed_food_frequency_1_5|string == i|string }}>{{ i }}</option>{% endfor %}
+            </select>
+          </div>
+          <div class="field">
+            <label for="fruit_vegetable_frequency_1_5">Fruit/Vegetable Frequency</label>
+            <select id="fruit_vegetable_frequency_1_5" name="fruit_vegetable_frequency_1_5" required>
+              {% for i in range(1,6) %}<option value="{{ i }}" {{ 'selected' if submitted.fruit_vegetable_frequency_1_5|string == i|string }}>{{ i }}</option>{% endfor %}
+            </select>
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label for="legume_frequency_1_5">Legume Frequency</label>
+            <select id="legume_frequency_1_5" name="legume_frequency_1_5" required>
+              {% for i in range(1,6) %}<option value="{{ i }}" {{ 'selected' if submitted.legume_frequency_1_5|string == i|string }}>{{ i }}</option>{% endfor %}
+            </select>
+          </div>
+          <div class="field">
+            <label for="alcohol_use">Alcohol Use</label>
+            <select id="alcohol_use" name="alcohol_use" required>
+              {% for v in options.alcohol_use %}<option value="{{ v }}" {{ 'selected' if submitted.alcohol_use == v }}>{{ v }}</option>{% endfor %}
+            </select>
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Lifestyle</legend>
+        <div class="field-row">
+          <div class="field">
+            <label for="physical_activity">Physical Activity</label>
+            <select id="physical_activity" name="physical_activity" required>
+              {% for v in options.physical_activity %}<option value="{{ v }}" {{ 'selected' if submitted.physical_activity == v }}>{{ v }}</option>{% endfor %}
+            </select>
+          </div>
+          <div class="field">
+            <label for="sleep_hours">Sleep Hours (avg/night)</label>
+            <input type="number" step="0.1" id="sleep_hours" name="sleep_hours" min="3" max="12" value="{{ submitted.sleep_hours or 7.0 }}" required>
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label for="stress_level">Stress Level</label>
+            <select id="stress_level" name="stress_level" required>
+              {% for v in options.stress_level %}<option value="{{ v }}" {{ 'selected' if submitted.stress_level == v }}>{{ v }}</option>{% endfor %}
+            </select>
+          </div>
+          <div class="field">
+            <label for="smoking">Smoking</label>
+            <select id="smoking" name="smoking" required>
+              {% for v in options.smoking %}<option value="{{ v }}" {{ 'selected' if submitted.smoking == v }}>{{ v }}</option>{% endfor %}
+            </select>
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Environmental Exposure</legend>
+        <div class="field-row">
+          <div class="field">
+            <label for="pesticide_exposure">Pesticide Exposure</label>
+            <select id="pesticide_exposure" name="pesticide_exposure" required>
+              {% for v in options.pesticide_exposure %}<option value="{{ v }}" {{ 'selected' if submitted.pesticide_exposure == v }}>{{ v }}</option>{% endfor %}
+            </select>
+          </div>
+          <div class="field">
+            <label for="air_pollution_exposure">Air Pollution Exposure</label>
+            <select id="air_pollution_exposure" name="air_pollution_exposure" required>
+              {% for v in options.air_pollution_exposure %}<option value="{{ v }}" {{ 'selected' if submitted.air_pollution_exposure == v }}>{{ v }}</option>{% endfor %}
+            </select>
+          </div>
+        </div>
+        <div class="field">
+          <label for="occupational_chemical_exposure">Occupational Chemical Exposure</label>
+          <select id="occupational_chemical_exposure" name="occupational_chemical_exposure" required>
+            {% for v in options.occupational_chemical_exposure %}<option value="{{ v }}" {{ 'selected' if submitted.occupational_chemical_exposure == v }}>{{ v }}</option>{% endfor %}
+          </select>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Reproductive / Clinical History</legend>
+        <div class="field-row">
+          <div class="field">
+            <label for="irregular_menstrual_cycle">Irregular Menstrual Cycle</label>
+            <select id="irregular_menstrual_cycle" name="irregular_menstrual_cycle" required>
+              {% for v in options.irregular_menstrual_cycle %}<option value="{{ v }}" {{ 'selected' if submitted.irregular_menstrual_cycle == v }}>{{ v }}</option>{% endfor %}
+            </select>
+          </div>
+          <div class="field">
+            <label for="severe_menstrual_pain">Severe Menstrual Pain</label>
+            <select id="severe_menstrual_pain" name="severe_menstrual_pain" required>
+              {% for v in options.severe_menstrual_pain %}<option value="{{ v }}" {{ 'selected' if submitted.severe_menstrual_pain == v }}>{{ v }}</option>{% endfor %}
+            </select>
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label for="family_reproductive_history">Family Reproductive History</label>
+            <select id="family_reproductive_history" name="family_reproductive_history" required>
+              {% for v in options.family_reproductive_history %}<option value="{{ v }}" {{ 'selected' if submitted.family_reproductive_history == v }}>{{ v }}</option>{% endfor %}
+            </select>
+          </div>
+          <div class="field">
+            <label for="previous_reproductive_condition">Previous Reproductive Condition</label>
+            <select id="previous_reproductive_condition" name="previous_reproductive_condition" required>
+              {% for v in options.previous_reproductive_condition %}<option value="{{ v }}" {{ 'selected' if submitted.previous_reproductive_condition == v }}>{{ v }}</option>{% endfor %}
+            </select>
+          </div>
+        </div>
+      </fieldset>
+
+      <button type="submit" class="btn">Run KRM Prediction</button>
+    </form>
+  </div>
+
+  <div>
+    {% if result %}
+    <div class="result-panel risk-{{ result.predicted_class }}">
+      <div class="result-flag">&#9888; {{ result.predicted_class|upper }} RISK</div>
+      <div class="result-name">{{ submitted.full_name }}</div>
+      <div class="result-headline">{{ (result.probabilities[result.predicted_class] * 100)|round(1) }}%</div>
+      <div class="result-sub">KRM model confidence for &ldquo;{{ result.predicted_class }}&rdquo; classification</div>
+
+      <div class="stat-grid">
+        <div class="stat-box">
+          <div class="stat-label">Predicted Risk Level</div>
+          <div class="stat-value">{{ result.predicted_class }}</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Top Contributing Factor</div>
+          <div class="stat-value" style="font-size:13.5px;">{{ result.top_factors[0].feature.replace('_',' ')|title }}</div>
+        </div>
+      </div>
+
+      <div class="prob-bars">
+        {% for level in ['Low','Moderate','High'] %}
+        <div class="prob-row">
+          <span class="prob-label">{{ level }}</span>
+          <div class="prob-track"><div class="prob-fill" style="width: {{ (result.probabilities[level]*100)|round(1) }}%; background: var(--risk-{{ level|lower }});"></div></div>
+          <span class="prob-pct">{{ (result.probabilities[level]*100)|round(1) }}%</span>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <h2>Risk Factor Breakdown</h2>
+        <span class="hint">Top SHAP contributions</span>
+      </div>
+      {% for f in result.top_factors %}
+      <div class="breakdown-item">
+        <div class="breakdown-dot {{ 'down' if f.supports_prediction else 'up' }}"></div>
+        <div class="breakdown-text" style="flex:1;">
+          <strong>{{ f.feature.replace('_',' ')|title }}</strong>
+          <p>{{ 'Supports' if f.supports_prediction else 'Works against' }} the &ldquo;{{ result.predicted_class }}&rdquo; classification for this respondent</p>
+        </div>
+        <div class="breakdown-value {{ 'down' if f.supports_prediction else 'up' }}">{{ '%+.3f'|format(f.value) }}</div>
+      </div>
+      {% endfor %}
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <h2>Personalized Suggestions</h2>
+        <span class="hint">Non-medical</span>
+      </div>
+      {% if result.recommendations %}
+      <ul class="rec-list">
+        {% for r in result.recommendations %}<li>{{ r }}</li>{% endfor %}
+      </ul>
+      {% else %}
+      <p class="hint">No elevated risk factors identified; continue routine healthy habits.</p>
+      {% endif %}
+      <div class="disclaimer">{{ disclaimer }}</div>
+    </div>
+
+    <div class="card" style="text-align:center;">
+      <span class="hint">Saved to the <strong>SQLite database</strong> automatically.</span>
+      &nbsp;<a class="btn-ghost" href="{{ url_for('members') }}">View Member Data &rarr;</a>
+    </div>
+
+    {% else %}
+    <div class="card">
+      <div class="empty-state">Fill in the member details and run a prediction to see the KRM risk assessment here.</div>
+    </div>
+    {% endif %}
+  </div>
+
+</div>
+{% endblock %}

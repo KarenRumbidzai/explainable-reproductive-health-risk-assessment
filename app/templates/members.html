@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+{% block title %}Member Data{% endblock %}
+{% block page_title %}Member Data{% endblock %}
+{% block page_subtitle %}Browse, filter, and export everyone assessed so far{% endblock %}
+
+{% block content %}
+
+<form class="filter-bar" method="get" action="{{ url_for('members') }}">
+  <div class="filter-field grow">
+    <label for="search">Search by name</label>
+    <input type="text" id="search" name="search" value="{{ filters.search }}" placeholder="e.g. Chipo">
+  </div>
+  <div class="filter-field">
+    <label for="risk">Risk level</label>
+    <select id="risk" name="risk">
+      <option value="">All</option>
+      {% for r in ['Low','Moderate','High'] %}
+      <option value="{{ r }}" {{ 'selected' if filters.risk == r }}>{{ r }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="filter-field">
+    <label for="province">Province</label>
+    <select id="province" name="province">
+      <option value="">All</option>
+      {% for p in provinces %}
+      <option value="{{ p }}" {{ 'selected' if filters.province == p }}>{{ p }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="filter-field">
+    <label for="residence">Residence</label>
+    <select id="residence" name="residence">
+      <option value="">All</option>
+      <option value="Urban" {{ 'selected' if filters.residence == 'Urban' }}>Urban</option>
+      <option value="Rural" {{ 'selected' if filters.residence == 'Rural' }}>Rural</option>
+    </select>
+  </div>
+  <div class="filter-field">
+    <label for="min_age">Min age</label>
+    <input type="number" id="min_age" name="min_age" value="{{ filters.min_age }}" min="18" max="45" style="width:80px;">
+  </div>
+  <div class="filter-field">
+    <label for="max_age">Max age</label>
+    <input type="number" id="max_age" name="max_age" value="{{ filters.max_age }}" min="18" max="45" style="width:80px;">
+  </div>
+  <div class="filter-actions">
+    <button type="submit" class="btn">Apply Filters</button>
+    <a href="{{ url_for('members') }}" class="btn-ghost">Reset</a>
+  </div>
+</form>
+
+<div class="card">
+  <div class="card-header">
+    <h2>Registered Members</h2>
+    <a class="btn-ghost" href="{{ url_for('download_members') }}">&#8681; Download members.xlsx</a>
+  </div>
+
+  <div class="result-count">
+    Showing <strong>{{ filtered_count }}</strong> of <strong>{{ total_count }}</strong> members
+  </div>
+
+  {% if members %}
+  <div class="table-scroll">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Name</th><th>Age</th><th>Province</th><th>Residence</th><th>Predicted Risk</th>
+          <th>Low</th><th>Moderate</th><th>High</th><th>Top Factor</th><th>Registered</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for m in members %}
+        <tr>
+          <td>{{ m.full_name }}</td>
+          <td>{{ m.age }}</td>
+          <td>{{ m.province }}</td>
+          <td>{{ m.residence }}</td>
+          <td><span class="risk-pill {{ m.predicted_risk }}">{{ m.predicted_risk }}</span></td>
+          <td>{{ (m.prob_low*100)|round(1) }}%</td>
+          <td>{{ (m.prob_moderate*100)|round(1) }}%</td>
+          <td>{{ (m.prob_high*100)|round(1) }}%</td>
+          <td>{{ m.top_factor.replace('_',' ')|title if m.top_factor else '—' }}</td>
+          <td>{{ m.registered_at }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="empty-state">
+    {% if total_count == 0 %}
+    No members registered yet.<br><a href="{{ url_for('predict') }}">Run your first prediction &rarr;</a>
+    {% else %}
+    No members match these filters. <a href="{{ url_for('members') }}">Clear filters</a>
+    {% endif %}
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

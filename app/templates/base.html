@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}KRM{% endblock %} — Reproductive Health Risk Assessment</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-icon">K</div>
+        <span class="brand-mark">KRM</span>
+      </div>
+      <div class="brand-sub">WOMEN HEALTH RISK ASSESSMENT ENGINE</div>
+
+      <div class="nav-section-label">ANALYTICS</div>
+      <a class="nav-link {{ 'active' if request.endpoint == 'dashboard' }}" href="{{ url_for('dashboard') }}">
+        <span class="nav-icon">&#9635;</span> Dashboard
+      </a>
+      <a class="nav-link {{ 'active' if request.endpoint == 'members' }}" href="{{ url_for('members') }}">
+        <span class="nav-icon">&#9776;</span> Member Data
+      </a>
+      <a class="nav-link {{ 'active' if request.endpoint == 'explore' }}" href="{{ url_for('explore') }}">
+        <span class="nav-icon">&#9733;</span> Explore Data
+      </a>
+
+      <div class="nav-section-label">ASSESSMENT</div>
+      <a class="nav-link {{ 'active' if request.endpoint == 'predict' }}" href="{{ url_for('predict') }}">
+        <span class="nav-icon">&#9679;</span> Run Prediction
+      </a>
+
+      <div class="sidebar-footer">
+        KRM Reproductive Health<br>Risk Engine v1.0 &middot; Zimbabwe<br>
+         &middot; <code>Developed @2026</code>
+      </div>
+    </aside>
+
+    <main class="main">
+      <div class="topbar">
+        <div>
+          <h1 class="page-title">{% block page_title %}{% endblock %}</h1>
+          <p class="page-subtitle">{% block page_subtitle %}{% endblock %}</p>
+        </div>
+        <div class="model-badge"><span class="dot"></span> KRM MODEL ACTIVE &nbsp;·&nbsp; LogReg + RandomForest + XGBoost</div>
+      </div>
+
+      {% with messages = get_flashed_messages() %}
+        {% if messages %}
+          {% for m in messages %}
+            <div class="flash">{{ m }}</div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+
+      {% block content %}{% endblock %}
+    </main>
+  </div>
+</body>
+</html>
